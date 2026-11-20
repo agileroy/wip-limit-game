@@ -38,16 +38,16 @@ export function Home({ uid, initialCode, go }: { uid: string; initialCode?: stri
 
   return (
     <main className="page">
-      <Brand subtitle="Le jeu qui montre pourquoi finir vaut mieux que commencer" />
+      <Brand subtitle="Un jeu de cuisine en équipe" />
       <section className="hero stack">
         <h1>
           Une cuisine, trois services,
           <br />
-          une seule question : combien de plats en même temps&nbsp;?
+          un seul objectif : des plats chauds.
         </h1>
         <p>
-          Votre brigade doit envoyer un maximum de plats chauds. Mêmes cuisiniers, mêmes recettes : seules les règles de la cuisine changent d’un
-          service à l’autre. À la fin, vos propres chiffres racontent pourquoi limiter le travail en cours fait aller plus vite.
+          Votre brigade doit envoyer un maximum de plats chauds. Mêmes cuisiniers, mêmes recettes : seules les règles de la cuisine
+          changent d’un service à l’autre. À la fin, vos propres chiffres raconteront ce qui s’est passé en cuisine.
         </p>
       </section>
       <div className="layout">

@@ -168,7 +168,7 @@ export function PlayerView({ room, uid }: { room: Room; uid: string }) {
   return (
     <main className="page">
       <div className="row spread">
-        <Brand subtitle="Le jeu qui montre pourquoi finir vaut mieux que commencer" />
+        <Brand subtitle="Un jeu de cuisine en équipe" />
         <span className="row small muted">
           Salle <span className="pill count">{formatCode(room.code)}</span>
         </span>
