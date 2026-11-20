@@ -13,7 +13,7 @@ export function Brand({ subtitle }: { subtitle?: string }) {
         </svg>
       </div>
       <div>
-        <div className="brand-name">Coup de Feu</div>
+        <div className="brand-name">Rush en cuisine</div>
         {subtitle && <div className="small muted">{subtitle}</div>}
       </div>
     </div>

@@ -208,7 +208,7 @@ function Playing({ room }: { room: Room }) {
             Événement : table VIP
           </button>
           <button className="btn ghost" type="button" onClick={() => addEvent(room, 'rush')}>
-            Événement : coup de feu (+3 commandes)
+            Événement : grande tablée (+3 commandes)
           </button>
           <button className="btn soft" type="button" onClick={() => endRoundNow(room)}>
             Terminer le service

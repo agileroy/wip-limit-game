@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Coup de Feu : un jeu en ligne pour découvrir les bénéfices des limites de WIP",
+  "description": "Rush en cuisine : un jeu en ligne pour découvrir les bénéfices des limites de WIP",
   "scripts": {
     "dev": "vite",
     "dev:emu": "VITE_EMULATOR=1 vite",

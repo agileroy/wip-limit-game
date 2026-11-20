@@ -217,7 +217,7 @@ export function addEvent(room: Room, kind: 'vip' | 'rush') {
   const k = room.game.kitchen;
   if (!k) return Promise.resolve();
   const next = kind === 'vip' ? addOrders(k, 1, true) : addOrders(k, 3, false);
-  next.log = [...(k.log ?? []), kind === 'vip' ? 'Une table VIP vient d’arriver !' : 'Coup de feu : 3 commandes d’un coup !'];
+  next.log = [...(k.log ?? []), kind === 'vip' ? 'Une table VIP vient d’arriver !' : 'Grande tablée : 3 commandes d’un coup !'];
   return update(ref(db, `rooms/${room.code}/game`), { kitchen: next });
 }
 

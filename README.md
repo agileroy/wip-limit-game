@@ -1,4 +1,4 @@
-# Coup de Feu · le jeu des limites de WIP
+# Rush en cuisine · le jeu des limites de WIP
 
 Un jeu en ligne, jouable à distance en 60 minutes, pour faire découvrir aux équipes les bénéfices des limites de travail en cours (WIP).
 
@@ -27,7 +27,7 @@ Tous les réglages sont dans `src/engine/types.ts` (`DEFAULT_CONFIG`) ; l'animat
 1. Ouvre le jeu, clique sur « Créer une salle » : tu arrives sur la table animateur.
 2. Partage le lien ou le code. Chaque joueur choisit son prénom et sa station.
 3. Complète au besoin avec des robots cuisiniers (pratique aussi pour tester seul).
-4. Lance chaque service, puis anime le débrief à l'écran (questions proposées). Événements disponibles : table VIP, coup de feu.
+4. Lance chaque service, puis anime le débrief à l'écran (questions proposées). Événements disponibles : table VIP, grande tablée (+3 commandes).
 
 Le navigateur de l'animateur fait avancer les tours : il doit rester ouvert pendant la partie.
 

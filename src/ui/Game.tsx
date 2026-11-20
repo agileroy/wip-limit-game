@@ -19,7 +19,7 @@ export function GameHeader({ room }: { room: Room }) {
     <>
       <header className="topbar">
         <div className="row">
-          <span className="brand-name">Coup de Feu</span>
+          <span className="brand-name">Rush en cuisine</span>
           <RoundPill mode={k.mode} index={room.game.roundIndex} />
           <span className="small muted mono">Salle {formatCode(room.code)}</span>
         </div>
