@@ -1,0 +1,28 @@
+{
+  "name": "wip-limit-game",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Coup de Feu : un jeu en ligne pour découvrir les bénéfices des limites de WIP",
+  "scripts": {
+    "dev": "vite",
+    "dev:emu": "VITE_EMULATOR=1 vite",
+    "emulators": "npx firebase-tools@latest emulators:start --only auth,database --project limit-wip-vleroy",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "firebase": "^11.10.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.6",
+    "vitest": "^3.2.7"
+  }
+}

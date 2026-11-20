@@ -1,0 +1,41 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      "$code": {
+        ".read": "auth != null",
+        "facilitator": {
+          ".write": "auth != null && !data.exists() && newData.val() === auth.uid"
+        },
+        "createdAt": {
+          ".write": "auth != null && root.child('rooms').child($code).child('facilitator').val() === auth.uid",
+          ".validate": "newData.isNumber()"
+        },
+        "config": {
+          ".write": "auth != null && root.child('rooms').child($code).child('facilitator').val() === auth.uid"
+        },
+        "game": {
+          ".write": "auth != null && root.child('rooms').child($code).child('facilitator').val() === auth.uid"
+        },
+        "rounds": {
+          ".write": "auth != null && root.child('rooms').child($code).child('facilitator').val() === auth.uid"
+        },
+        "players": {
+          "$uid": {
+            ".write": "auth != null && root.child('rooms').child($code).child('facilitator').exists() && (auth.uid === $uid || root.child('rooms').child($code).child('facilitator').val() === auth.uid)",
+            ".validate": "!newData.exists() || (newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 24)"
+          }
+        },
+        "actions": {
+          ".write": "auth != null && root.child('rooms').child($code).child('facilitator').val() === auth.uid",
+          "$turn": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($code).child('players').child($uid).exists()"
+            }
+          }
+        }
+      }
+    }
+  }
+}
