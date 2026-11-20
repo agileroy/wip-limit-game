@@ -66,7 +66,7 @@ h1, h2, h3 { font-family: var(--display); letter-spacing: -0.02em; margin: 0; }
 }
 .field input:focus, .field select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-.pill { border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.pill { white-space: nowrap; border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
 .pill.free { background: #fdba74; color: var(--ink); }
 .pill.limit { background: #93c5fd; color: var(--ink); }
 .pill.swarm { background: #86efac; color: var(--ink); }

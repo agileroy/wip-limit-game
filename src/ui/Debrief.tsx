@@ -124,7 +124,7 @@ export function Debrief({ room, final }: { room: Room; final?: boolean }) {
               <div><dt>Plats en cours (moy.)</dt><dd>{fmt(r.avgWip)}</dd></div>
               <div><dt>Temps de traversée</dt><dd>{fmt(r.avgCycle)} tours</dd></div>
               <div><dt>Clients partis</dt><dd>{r.lost}</dd></div>
-              <div><dt>Points perdus</dt><dd>{r.wasted}</dd></div>
+              <div><dt>Points inutilisés</dt><dd>{r.wasted}</dd></div>
             </dl>
           </section>
         ))}
