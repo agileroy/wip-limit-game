@@ -42,6 +42,7 @@ function kitchen(mode: RoundMode, dishes: Dish[], rolls: Record<string, number>)
     dishes: Object.fromEntries(dishes.map((d) => [d.id, d])),
     nextDishId: 100,
     rolls,
+    limits: { prep: 2, cook: 2, plate: 2 },
     rng: 42,
     arrivalAcc: 0,
     metrics: [],
@@ -155,7 +156,8 @@ function playRound(mode: RoundMode, seed: number, players = brigade) {
   let s = newRound(mode, players, cfg, seed);
   while (!isRoundOver(s, cfg)) {
     const actions: Record<string, PlayerAction> = {};
-    for (const p of players) actions[p.uid] = act(botAllocation(s, p.station, s.rolls[p.uid], cfg));
+    const claimed = new Set<string>();
+    for (const p of players) actions[p.uid] = act(botAllocation(s, p.station, s.rolls[p.uid], cfg, claimed));
     s = resolveTurn(s, players, actions, cfg);
   }
   return summarize(s);
@@ -176,10 +178,15 @@ describe('partie complète avec des robots', () => {
     expect(swarm.served).toBeGreaterThanOrEqual(limit.served * 0.95);
   });
 
-  it('tient la route avec une grande brigade', () => {
-    const big: PlayerInfo[] = ['prep', 'prep', 'cook', 'cook', 'cook', 'plate', 'plate'].map((s, i) => ({ uid: `p${i}`, station: s as StationId }));
-    const r = playRound('limit', 3, big);
-    expect(r.served).toBeGreaterThan(0);
-    expect(r.metrics).toHaveLength(cfg.turnsPerRound);
+  it('les limites gagnent aussi avec une grande brigade', () => {
+    const big: PlayerInfo[] = ['prep', 'prep', 'prep', 'cook', 'cook', 'cook', 'plate', 'plate', 'plate'].map((s, i) => ({ uid: `p${i}`, station: s as StationId }));
+    let wins = 0;
+    for (let seed = 1; seed <= 30; seed++) if (playRound('limit', seed, big).revenue > playRound('free', seed, big).revenue) wins += 1;
+    expect(wins).toBeGreaterThanOrEqual(27);
+  });
+
+  it('la limite grandit avec le nombre de cuisiniers', () => {
+    const big: PlayerInfo[] = [{ uid: 'a', station: 'prep' }, { uid: 'b', station: 'cook' }, { uid: 'c', station: 'cook' }, { uid: 'd', station: 'cook' }, { uid: 'e', station: 'plate' }];
+    expect(newRound('limit', big, cfg, 1).limits).toEqual({ prep: 2, cook: 4, plate: 2 });
   });
 });

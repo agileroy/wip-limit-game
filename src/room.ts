@@ -228,9 +228,11 @@ export function resolveCurrentTurn(room: Room) {
   const players = activePlayers(room);
   const key = turnKey(room.game.roundIndex, k.turn);
   const actions: Record<string, PlayerAction> = { ...(room.actions[key] ?? {}) };
+  // Les robots évitent les plats déjà choisis par les humains et par les autres robots
+  const claimed = new Set<string>(Object.values(actions).flatMap((a) => Object.keys(a?.alloc ?? {})));
   for (const p of players) {
     if (room.players[p.uid]?.bot) {
-      actions[p.uid] = { alloc: botAllocation(k, p.station, k.rolls[p.uid] ?? 0, room.config), submittedAt: 0, done: true };
+      actions[p.uid] = { alloc: botAllocation(k, p.station, k.rolls[p.uid] ?? 0, room.config, claimed), submittedAt: 0, done: true };
     }
   }
   const next = resolveTurn(k, players, actions, room.config);

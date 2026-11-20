@@ -76,6 +76,21 @@ export function stationLoad(state: KitchenState, station: StationId): number {
   return dishesAt(state, station).length;
 }
 
+/** Limite d'une station : wipLimit pour 1 cuisinier, +1 par cuisinier supplémentaire. */
+export function stationLimit(cfg: GameConfig, staff: number): number {
+  return cfg.wipLimit + Math.max(0, staff - 1);
+}
+
+export function computeLimits(players: PlayerInfo[], cfg: GameConfig): Record<StationId, number> {
+  const out = {} as Record<StationId, number>;
+  for (const s of STATIONS) out[s] = stationLimit(cfg, players.filter((p) => p.station === s).length);
+  return out;
+}
+
+export function limitOf(state: KitchenState, station: StationId, cfg: GameConfig): number {
+  return state.limits?.[station] ?? cfg.wipLimit;
+}
+
 export function hasLimits(mode: RoundMode): boolean {
   return mode !== 'free';
 }
@@ -190,6 +205,7 @@ export function newRound(mode: RoundMode, players: PlayerInfo[], cfg: GameConfig
     dishes: {},
     nextDishId: 1,
     rolls: {},
+    limits: computeLimits(players, cfg),
     rng: 0,
     arrivalAcc: 0,
     metrics: [],
@@ -260,7 +276,7 @@ export function resolveTurn(
           continue;
         }
         if (!canPull(state, dish, station)) continue;
-        if (limited && stationLoad(state, station) >= cfg.wipLimit) {
+        if (limited && stationLoad(state, station) >= limitOf(state, station, cfg)) {
           log.push(`${dish.recipe} refusé en ${station} : limite atteinte`);
           continue;
         }

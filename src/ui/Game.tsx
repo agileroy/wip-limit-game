@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { snapshot } from '../engine/engine';
+import { limitOf, snapshot } from '../engine/engine';
 import { Allocation, STATION_LABEL } from '../engine/types';
 import { serverNow } from '../firebase';
 import { formatCode, Room, submitAction, turnKey } from '../room';
@@ -91,7 +91,7 @@ function PlayingScreen({ room, uid }: { room: Room; uid: string }) {
 
   const doneUids = new Set(Object.entries(room.actions[key] ?? {}).filter(([, a]) => a.done).map(([u]) => u));
   for (const [u, p] of Object.entries(room.players)) if (p.bot) doneUids.add(u);
-  const b = bannerText(k.mode, roll, stats, load, room.config.wipLimit, limited);
+  const b = bannerText(k.mode, roll, stats, load, station ? limitOf(k, station, room.config) : 0, limited);
 
   return (
     <main className="page">

@@ -21,7 +21,7 @@ export const ROUND_LABEL: Record<RoundMode, string> = {
 export interface GameConfig {
   turnsPerRound: number;
   turnSeconds: number;
-  /** nombre max de plats par station (en cours + prêts) */
+  /** nombre max de plats (en cours + prêts) d'une station tenue par 1 cuisinier ; +1 par cuisinier en plus */
   wipLimit: number;
   /** valeur d'un plat servi chaud */
   dishValue: number;
@@ -96,6 +96,8 @@ export interface KitchenState {
   dishes: Record<string, Dish>;
   nextDishId: number;
   rolls: Record<string, number>;
+  /** limite de WIP de chaque station pour ce service */
+  limits: Record<StationId, number>;
   rng: number;
   arrivalAcc: number;
   metrics: TurnMetric[];

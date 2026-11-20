@@ -42,8 +42,12 @@ function useTurnEngine(room: Room) {
       if (resolving.current === key) return;
       const humans = activePlayers(r).filter((p) => !r.players[p.uid]?.bot);
       const acts = r.actions[key] ?? {};
-      const allDone = humans.length > 0 && humans.every((p) => acts[p.uid]?.done);
+      // Sans humain (partie de test 100 % robots), tout le monde a « validé » d'office
+      const allDone = humans.every((p) => acts[p.uid]?.done);
+      const turnStart = r.game.turnEndsAt - r.config.turnSeconds * 1000;
+      const minElapsed = serverNow() - turnStart >= (humans.length ? 1000 : 2500);
       const timeUp = serverNow() >= r.game.turnEndsAt;
+      if (allDone && !minElapsed) return;
       if (!allDone && !timeUp) return;
       resolving.current = key;
       resolveCurrentTurn(r).catch(() => {
@@ -127,7 +131,7 @@ function Lobby({ room }: { room: Room }) {
               </select>
             </label>
             <label className="field">
-              Limite par station
+              Limite par station (1 cuisinier)
               <select value={room.config.wipLimit} onChange={(e) => saveConfig(room, { wipLimit: Number(e.target.value) })}>
                 {[1, 2, 3, 4].map((v) => <option key={v} value={v}>{v}</option>)}
               </select>

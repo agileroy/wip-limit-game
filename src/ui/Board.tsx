@@ -1,4 +1,4 @@
-import { currentValue, dishesAt, hasLimits, isReadyAt, stationLoad, targetKind, TargetKind, usefulPoints } from '../engine/engine';
+import { currentValue, dishesAt, hasLimits, isReadyAt, limitOf, stationLoad, targetKind, TargetKind, usefulPoints } from '../engine/engine';
 import { Allocation, Dish, GameConfig, KitchenState, STATION_LABEL, STATIONS, StationId } from '../engine/types';
 import { Player } from '../room';
 
@@ -39,7 +39,7 @@ export function Board({ kitchen, config, players, me }: Props) {
     // nouveau plat : il faut qu'il reste au moins 1 point après le coût du changement de contexte
     const usefulNext = usefulPoints(me.roll, stats.touched + 1, config);
     if (usefulNext - stats.used < 1) return false;
-    if (kind === 'pull' && limited && stationLoad(kitchen, me.station) + plannedPulls >= config.wipLimit) return false;
+    if (kind === 'pull' && limited && stationLoad(kitchen, me.station) + plannedPulls >= limitOf(kitchen, me.station, config)) return false;
     return true;
   }
 
@@ -68,14 +68,15 @@ export function Board({ kitchen, config, players, me }: Props) {
     },
     ...STATIONS.map((s) => {
       const load = stationLoad(kitchen, s);
+      const lim = limitOf(kitchen, s, config);
       return {
         key: s,
         title: STATION_LABEL[s],
         sub: crewOf(s),
         station: s,
         dishes: dishesAt(kitchen, s),
-        badge: limited ? `${load} / ${config.wipLimit}` : String(load),
-        full: limited && load >= config.wipLimit,
+        badge: limited ? `${load} / ${lim}` : String(load),
+        full: limited && load >= lim,
       };
     }),
   ];

@@ -1,4 +1,4 @@
-import { dishesAt, downstreamOf, hasLimits, isReadyAt, upstreamOf, usefulPoints } from './engine';
+import { dishesAt, downstreamOf, hasLimits, isReadyAt, limitOf, stationLoad, upstreamOf, usefulPoints } from './engine';
 import { Allocation, Dish, GameConfig, KitchenState, StationId } from './types';
 
 function remaining(d: Dish, s: StationId): number {
@@ -12,46 +12,84 @@ function upstreamReady(state: KitchenState, station: StationId): Dish[] {
 }
 
 /**
- * Cuisinier « qui dit oui à tout » : il démarre tout ce qui arrive et répartit ses points.
- * C'est le comportement typique d'une équipe sans limite.
+ * Cuisinier « qui dit oui à tout » : il démarre ce qui arrive et répartit ses points
+ * entre plusieurs plats. C'est le comportement typique d'une équipe sans limite.
  */
-export function greedyBot(state: KitchenState, station: StationId, roll: number, cfg: GameConfig): Allocation {
+export function greedyBot(state: KitchenState, station: StationId, roll: number, cfg: GameConfig, claimed: Set<string>): Allocation {
   const own = dishesAt(state, station).filter((d) => remaining(d, station) > 0);
-  const incoming = upstreamReady(state, station).slice(0, 2);
+  const incoming = upstreamReady(state, station).filter((d) => !claimed.has(d.id)).slice(0, 2);
   const targets = [...own, ...incoming].slice(0, 4);
   if (!targets.length) return {};
   let pts = usefulPoints(roll, targets.length, cfg);
   const alloc: Allocation = {};
-  let i = 0;
-  while (pts > 0 && i < targets.length * 6) {
-    const d = targets[i % targets.length];
-    const already = alloc[d.id] ?? 0;
-    if (already < remaining(d, station) || d.location !== station) {
-      alloc[d.id] = already + 1;
-      pts -= 1;
+  let guard = 0;
+  while (pts > 0 && guard < 50) {
+    guard += 1;
+    const open = targets.filter((d) => (alloc[d.id] ?? 0) < (d.location === station ? remaining(d, station) : d.work[station]));
+    if (!open.length) break;
+    const d = open[guard % open.length];
+    alloc[d.id] = (alloc[d.id] ?? 0) + 1;
+    pts -= 1;
+  }
+  for (const id of Object.keys(alloc)) claimed.add(id);
+  return alloc;
+}
+
+/**
+ * Cuisinier « finir avant de commencer » : il prend le plat le plus ancien que personne
+ * de sa station n'a déjà pris ce tour-ci, et ne tire du nouveau que s'il reste de la place.
+ * Au service 3, quand sa station n'a rien à faire ou que la suivante est pleine, il aide en aval.
+ */
+export function focusedBot(state: KitchenState, station: StationId, roll: number, cfg: GameConfig, claimed: Set<string>): Allocation {
+  const limited = hasLimits(state.mode);
+  const own = dishesAt(state, station).filter((d) => remaining(d, station) > 0 && !claimed.has(d.id));
+  const pulledThisTurn = [...claimed].filter((id) => {
+    const d = state.dishes[id];
+    return d && d.location !== station && upstreamReady(state, station).includes(d);
+  }).length;
+  const room = !limited || stationLoad(state, station) + pulledThisTurn < limitOf(state, station, cfg);
+  const incoming = room ? upstreamReady(state, station).filter((d) => !claimed.has(d.id)) : [];
+
+  // Au service 3 : si la station suivante est pleine, on l'aide avant de démarrer du neuf
+  if (state.mode === 'swarm') {
+    const next = downstreamOf(station)[0];
+    const nextBlocked = next && stationLoad(state, next) >= limitOf(state, next, cfg);
+    if ((!own.length && (nextBlocked || !incoming.length)) && next) {
+      for (const s of downstreamOf(station)) {
+        const d = dishesAt(state, s).find((x) => remaining(x, s) > 0 && !claimed.has(x.id));
+        if (d) {
+          claimed.add(d.id);
+          return { [d.id]: Math.min(roll, remaining(d, s)) };
+        }
+      }
     }
-    i += 1;
+  }
+
+  const first = own[0] ?? incoming[0];
+  if (!first) return {};
+  claimed.add(first.id);
+  const need = first.location === station ? remaining(first, station) : first.work[station];
+  if (roll <= need) return { [first.id]: roll };
+  // Il reste des points : on passe au plat suivant seulement si ça vaut le coût du changement
+  const alloc: Allocation = { [first.id]: need };
+  const leftover = roll - need - cfg.contextSwitchCost;
+  const pullsUsed = pulledThisTurn + (own.includes(first) ? 0 : 1);
+  const roomForSecond = !limited || stationLoad(state, station) + pullsUsed < limitOf(state, station, cfg);
+  const second = own.find((d) => d.id !== first.id) ?? (roomForSecond ? upstreamReady(state, station).find((d) => d.id !== first.id && !claimed.has(d.id)) : undefined);
+  if (leftover >= 1 && second) {
+    alloc[second.id] = Math.min(leftover, second.location === station ? remaining(second, station) : second.work[station]);
+    claimed.add(second.id);
   }
   return alloc;
 }
 
-/** Cuisinier « finir avant de commencer » : un plat à la fois, le plus ancien d'abord. */
-export function focusedBot(state: KitchenState, station: StationId, roll: number, cfg: GameConfig): Allocation {
-  const own = dishesAt(state, station).filter((d) => remaining(d, station) > 0);
-  if (own.length) return { [own[0].id]: roll };
-  const load = dishesAt(state, station).length;
-  const canPullMore = !hasLimits(state.mode) || load < cfg.wipLimit;
-  const incoming = upstreamReady(state, station);
-  if (canPullMore && incoming.length) return { [incoming[0].id]: roll };
-  if (state.mode === 'swarm') {
-    for (const s of downstreamOf(station)) {
-      const d = dishesAt(state, s).find((x) => remaining(x, s) > 0);
-      if (d) return { [d.id]: roll };
-    }
-  }
-  return {};
-}
-
-export function botAllocation(state: KitchenState, station: StationId, roll: number, cfg: GameConfig): Allocation {
-  return state.mode === 'free' ? greedyBot(state, station, roll, cfg) : focusedBot(state, station, roll, cfg);
+/** Les robots d'une même station se répartissent les plats via `claimed`. */
+export function botAllocation(
+  state: KitchenState,
+  station: StationId,
+  roll: number,
+  cfg: GameConfig,
+  claimed: Set<string> = new Set(),
+): Allocation {
+  return state.mode === 'free' ? greedyBot(state, station, roll, cfg, claimed) : focusedBot(state, station, roll, cfg, claimed);
 }

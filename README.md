@@ -19,6 +19,8 @@ Jouer : **https://agileroy.github.io/wip-limit-game/**
 - **Un plat entamé refroidit** : 20 € s'il sort dans les 3 tours, puis −2 € par tour (un VIP vaut le double).
 - Une commande jamais démarrée ne refroidit pas, mais le client part au bout de 6 tours.
 - Les limites comptent les plats en cours **et** les plats prêts qui attendent la station suivante.
+- Limite d'une station : 2 plats pour 1 cuisinier, +1 par cuisinier supplémentaire (réglable par l'animateur).
+- Une partie 100 % robots avance toute seule (un tour toutes les 2,5 s) : pratique pour tester.
 
 Tous les réglages sont dans `src/engine/types.ts` (`DEFAULT_CONFIG`) ; l'animateur peut changer la durée d'un tour, le nombre de tours et la limite depuis la salle d'attente.
 
