@@ -12,13 +12,13 @@ function upstreamReady(state: KitchenState, station: StationId): Dish[] {
 }
 
 /**
- * Cuisinier « qui dit oui à tout » : il démarre ce qui arrive et répartit ses points
+ * Cuisinier « qui dit oui à tout » : il démarre une nouvelle commande à chaque tour et répartit ses points
  * entre plusieurs plats. C'est le comportement typique d'une équipe sans limite.
  */
 export function greedyBot(state: KitchenState, station: StationId, roll: number, cfg: GameConfig, claimed: Set<string>): Allocation {
   const own = dishesAt(state, station).filter((d) => remaining(d, station) > 0);
-  const incoming = upstreamReady(state, station).filter((d) => !claimed.has(d.id)).slice(0, 2);
-  const targets = [...own, ...incoming].slice(0, 4);
+  const incoming = upstreamReady(state, station).filter((d) => !claimed.has(d.id)).slice(0, 1);
+  const targets = [...own.slice(0, 3), ...incoming];
   if (!targets.length) return {};
   let pts = usefulPoints(roll, targets.length, cfg);
   const alloc: Allocation = {};
