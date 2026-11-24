@@ -36,6 +36,48 @@
           }
         }
       }
+    },
+    "csRooms": {
+      "$code": {
+        ".read": "auth != null",
+        "facilitator": {
+          ".write": "auth != null && !data.exists() && newData.val() === auth.uid"
+        },
+        "createdAt": {
+          ".write": "auth != null && root.child('csRooms').child($code).child('facilitator').val() === auth.uid",
+          ".validate": "newData.isNumber()"
+        },
+        "revealed": {
+          ".write": "auth != null && root.child('csRooms').child($code).child('facilitator').val() === auth.uid",
+          ".validate": "newData.isBoolean()"
+        },
+        "players": {
+          "$uid": {
+            ".write": "auth != null && root.child('csRooms').child($code).child('facilitator').exists() && (auth.uid === $uid || root.child('csRooms').child($code).child('facilitator').val() === auth.uid)",
+            ".validate": "!newData.exists() || (newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 24)",
+            "name": {
+              ".validate": "newData.isString()"
+            },
+            "joinedAt": {
+              ".validate": "newData.isNumber()"
+            },
+            "round": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3"
+            },
+            "res": {
+              "$k": {
+                ".validate": "$k.matches(/^[012]$/) && newData.child('total').isNumber()"
+              }
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
     }
   }
 }

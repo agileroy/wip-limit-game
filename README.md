@@ -49,6 +49,7 @@ npm run dev:emu   # front branché sur les émulateurs
 - `src/room.ts` : synchronisation Firebase Realtime Database (salles, joueurs, actions, tours).
 - `src/ui/` : écrans joueur, table animateur, débrief.
 - `database.rules.json` : règles de sécurité (seul l'animateur fait avancer la partie ; chaque joueur n'écrit que ses propres actions).
+  La section `csRooms` sert au jeu [Une chose à la fois](https://github.com/agileroy/context-switching-game), qui partage ce projet Firebase : ne pas la supprimer.
 
 ## Déploiement
 
