@@ -51,6 +51,10 @@
           ".write": "auth != null && root.child('csRooms').child($code).child('facilitator').val() === auth.uid",
           ".validate": "newData.isBoolean()"
         },
+        "q": {
+          ".write": "auth != null && root.child('csRooms').child($code).child('facilitator').val() === auth.uid",
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 4"
+        },
         "players": {
           "$uid": {
             ".write": "auth != null && root.child('csRooms').child($code).child('facilitator').exists() && (auth.uid === $uid || root.child('csRooms').child($code).child('facilitator').val() === auth.uid)",
